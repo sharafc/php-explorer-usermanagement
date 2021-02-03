@@ -69,8 +69,6 @@ function toIsoDate($value)
 
         // Übergebenes Datumsformat prüfen
         if (stripos($value, ".")) {
-
-
             $dateArray = explode(".", $value);
             $day  = $dateArray[0];
             $month = $dateArray[1];
@@ -111,26 +109,21 @@ function validateDate($value)
         // ISO-Format
         if (stripos($value, "-")) {
             $dateArray = explode("-", $value);
-
-            $day         = $dateArray[2];
-            $month     = $dateArray[1];
-            $year     = $dateArray[0];
-
+            $day = $dateArray[2];
+            $month = $dateArray[1];
+            $year = $dateArray[0];
             // EU-Format
         } elseif (stripos($value, ".")) {
             $dateArray = explode(".", $value);
-
-            $day         = $dateArray[0];
-            $month     = $dateArray[1];
-            $year     = $dateArray[2];
-
+            $day = $dateArray[0];
+            $month = $dateArray[1];
+            $year = $dateArray[2];
             // US-Format
         } elseif (stripos($value, "/")) {
             $dateArray = explode("/", $value);
-
-            $day         = $dateArray[1];
-            $month     = $dateArray[0];
-            $year     = $dateArray[2];
+            $day = $dateArray[1];
+            $month = $dateArray[0];
+            $year = $dateArray[2];
         }
     }
 
