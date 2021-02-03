@@ -1,0 +1,3 @@
+Verlinkt auf 
+
+require_once("../../traits/autoConstruct.trait.php");
