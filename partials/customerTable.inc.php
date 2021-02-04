@@ -15,8 +15,8 @@
             <td><?= $value->getCus_birthdate() ? $value->getCus_birthdate()->format('d.m.Y') :  '' ?></td>
             <td><?= $value->getCus_city() ?? '' ?></td>
             <td>
-                <a href="?action=editUser&customer=<?= $key ?>">Edit</a> /
-                <a href="?action=deleteUser&customer=<?= $key ?>" onclick="return confirm('Please confirm to delete Customer <?= $value->getFullName() ?>')">Delete</a>
+                <a href="?action=editCustomer&customer=<?= $key ?>">Edit</a> /
+                <a href="?action=deleteCustomer&customer=<?= $key ?>" onclick="return confirm('Please confirm to delete Customer <?= $value->getFullName() ?>')">Delete</a>
             </td>
         </tr>
     <?php endforeach ?>

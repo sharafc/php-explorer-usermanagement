@@ -17,12 +17,13 @@ $pdo = dbConnect();
 
 // Fetch all existing users from db
 $customers = Customer::fetchAllCustomersFromDb($pdo);
+$editCustomer = false; // small "cheat" to ease up form handling
 
-// Haandle URL parameters
+// Handle URL parameters
 if (isset($_GET['action'])) {
     $action = cleanString($_GET['action']);
     switch ($action) {
-        case 'deleteUser':
+        case 'deleteCustomer':
             $selectedCustomer = $customers[cleanString($_GET['customer'])];
             if ($selectedCustomer->deleteFromDb($pdo)) {
                 $transactionState = [
@@ -39,6 +40,15 @@ if (isset($_GET['action'])) {
                     'message' => 'Customer could not be deleted. Please try again later'
                 ];
             }
+            break;
+
+        case 'editCustomer':
+            $selectedCustomer = $customers[cleanString($_GET['customer'])];
+            $editCustomer = true;
+            break;
+
+        default:
+
             break;
     }
 }
@@ -75,10 +85,26 @@ if (isset($_POST['customerFormSent'])) {
             $customer['lastname'],
             $customer['email'],
             $date,
-            $customer['city']
+            $customer['city'],
+            $customer['id'] ?? NULL
         );
 
-        if(!$currentCustomer->emailExistsInDb($pdo)) {
+        if ($editCustomer) {
+            if ($currentCustomer->updateToDb($pdo)) {
+                $transactionState = [
+                    'state' => 'success',
+                    'message' => 'Customer successfully updated with ID: ' . $currentCustomer->getCus_id()
+                ];
+
+                unset($currentCustomer);
+                $customer = [];
+            } else {
+                $transactionState = [
+                    'state' => 'error',
+                    'message' => 'Customer could not be updated. Please try again later'
+                ];
+            }
+        } elseif (!$editCustomer && !$currentCustomer->emailExistsInDb($pdo)) {
             if ($currentCustomer->saveToDb($pdo)) {
                 $transactionState = [
                     'state' => 'success',
@@ -111,6 +137,7 @@ if (isset($_POST['customerFormSent'])) {
     <meta charset="utf-8">
     <title>Customer Management</title>
     <link rel="stylesheet" href="./css/debug.css">
+    <link rel="stylesheet" href="./css/tutor.css">
     <link rel="stylesheet" href="./css/main.css">
 </head>
 
@@ -121,7 +148,7 @@ if (isset($_POST['customerFormSent'])) {
         <?php require_once('./partials/customerTable.inc.php'); ?>
     <?php endif ?>
 
-    <hr style="margin: 2em;">
+    <hr>
 
     <?php if (isset($transactionState)) : ?>
         <div class="<?= $transactionState['state'] ?>">
@@ -130,7 +157,6 @@ if (isset($_POST['customerFormSent'])) {
     <?php endif ?>
 
     <?php require_once('./partials/customerForm.inc.php'); ?>
-
 </body>
 
 </html>

@@ -1,11 +1,26 @@
 <?php
-
+if ($editCustomer) {
+    $customer = [
+        'firstname' => $selectedCustomer->getCus_firstname(),
+        'lastname' => $selectedCustomer->getCus_lastname(),
+        'email' => $selectedCustomer->getCus_email(),
+        'birthdate' => ($selectedCustomer->getCus_birthdate() ? $selectedCustomer->getCus_birthdate()->format('Y-m-d') : NULL),
+        'city' => $selectedCustomer->getCus_city(),
+        'id' => $selectedCustomer->getCus_id()
+    ];
+}
 ?>
 
-<form action="index.php" method="POST">
+<form action="" method="POST">
     <input type="hidden" name="customerFormSent">
+    <input type="hidden" name="customer[id]" value="<?= $customer['id'] ?? NULL ?>">
     <fieldset>
-        <legend>Add new Customer</legend>
+        <?php if ($editCustomer) : ?>
+            <p>
+                <a href="index.php">&lt;&lt; Cancel Edit Mode</a>
+            </p>
+        <?php endif ?>
+        <legend><?= $editCustomer ? 'Edit' : 'Add new' ?> Customer</legend>
         <label for="firstname">First name *</label>
         <?php if (isset($error['firstname'])) : ?>
             <div class="error"><?= $error['firstname'] ?></div>
@@ -36,5 +51,5 @@
         <?php endif ?>
         <input type="text" name="customer[city]" id="city" value="<?= $customer['city'] ?? '' ?>">
     </fieldset>
-    <button type="submit">Add customer</button>
+    <button type="submit"><?= $editCustomer ? 'Edit' : 'Add' ?> Customer</button>
 </form>

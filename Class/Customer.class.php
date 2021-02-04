@@ -121,7 +121,7 @@ class Customer implements CustomerInterface
                   cus_lastname = :ph_lastname,
                   cus_email = :ph_email,
                   cus_birthdate = :ph_birthdate,
-                  cus_city = :ph_city,
+                  cus_city = :ph_city
                   WHERE cus_id = :ph_id';
         $map = [
             'ph_id' => $this->getCus_id(),
@@ -131,6 +131,7 @@ class Customer implements CustomerInterface
             'ph_birthdate' => ($this->getCus_birthdate() ? $this->getCus_birthdate()->format('Y-m-d') : NULL),
             'ph_city' => $this->getCus_city()
         ];
+
         $statement = $pdo->prepare($query);
         $statement->execute($map);
         if ($statement->errorInfo()[2]) {
@@ -209,7 +210,7 @@ class Customer implements CustomerInterface
     /**
      * Get the value of cus_id
      */
-    public function getCus_id(): int
+    public function getCus_id(): ?int
     {
         return $this->cus_id;
     }
