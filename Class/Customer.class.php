@@ -1,5 +1,10 @@
 <?php
-
+/**
+ *  Represents a Customer
+ *
+ * @author Christian Sharaf <http://twitter.com/sharafc>
+ * @see CustomerInterface
+ */
 class Customer implements CustomerInterface
 {
     private ?int $cus_id;
@@ -39,7 +44,7 @@ class Customer implements CustomerInterface
         $statement = $pdo->prepare($query);
         $statement->execute();
         if ($statement->errorInfo()[2]) {
-            logger('Something went wrong while saving Artist', $statement->errorInfo()[2]);
+            logger('Something went wrong while saving customer', $statement->errorInfo()[2]);
         }
 
         while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -187,7 +192,7 @@ class Customer implements CustomerInterface
         $statement = $pdo->prepare($query);
         $statement->execute();
         if ($statement->errorInfo()[2]) {
-            logger('Something went wrong while deleting Customer with ID: ' . $this->getCus_id(), $statement->errorInfo()[2]);
+            logger('Something went wrong while deleting customer with ID: ' . $this->getCus_id(), $statement->errorInfo()[2]);
         }
 
         if ($statement->rowCount()) {
@@ -214,7 +219,7 @@ class Customer implements CustomerInterface
         $statement = $pdo->prepare($query);
         $statement->execute($map);
         if ($statement->errorInfo()[2]) {
-            logger('Something went wrong while fetching Customer emails', $statement->errorInfo()[2]);
+            logger('Something went wrong while fetching customer emails', $statement->errorInfo()[2]);
         }
 
         $count = $statement->fetchColumn();

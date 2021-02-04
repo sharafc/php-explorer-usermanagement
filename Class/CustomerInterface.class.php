@@ -4,9 +4,9 @@ interface CustomerInterface
 {
     public function __construct(
         ?int $id,
-        ?string $firstname,
-        ?string $lastname,
-        ?string $email,
+        ?string $firstname = NULL,
+        ?string $lastname = NULL,
+        ?string $email = NULL,
         ?DateTime $birthdate = NULL,
         ?string $city = NULL
     );
