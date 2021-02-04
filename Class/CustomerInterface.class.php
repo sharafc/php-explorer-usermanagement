@@ -13,10 +13,11 @@ interface CustomerInterface
 
     public static function fetchAllCustomersFromDb(PDO $pdo): ?array;
 
-    public function saveToDb(PDO $pdo);
+    public function saveToDb(PDO $pdo): bool;
     public function fetchFromDb(PDO $pdo);
-    public function updateToDb(PDO $pdo);
-    public function deleteFromDb(PDO $pdo);
+    public function updateToDb(PDO $pdo): bool;
+    public function deleteFromDb(PDO $pdo): bool;
+    public function emailExistsInDb(PDO $pdo): bool;
 
     public function getFullname(): string;
 

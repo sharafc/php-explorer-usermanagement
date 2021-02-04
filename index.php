@@ -3,9 +3,11 @@ require_once('./include/config.inc.php');
 require_once('./include/db.inc.php');
 require_once('./include/logger.inc.php');
 require_once('./include/form_functions.inc.php');
-require_once('./include/dateTime.inc.php');
 require_once('./include/kint.phar');
 require_once('./include/classLoader.inc.php');
+
+// OB because of Debug Messages in Frontend
+ob_clean();
 
 // Autoloader
 spl_autoload_register('autoloadClasses');
@@ -16,7 +18,33 @@ $pdo = dbConnect();
 // Fetch all existing users from db
 $customers = Customer::fetchAllCustomersFromDb($pdo);
 
-if (isset($_POST['addCustomerSent'])) {
+// Haandle URL parameters
+if (isset($_GET['action'])) {
+    $action = cleanString($_GET['action']);
+    switch ($action) {
+        case 'deleteUser':
+            $selectedCustomer = $customers[cleanString($_GET['customer'])];
+            if ($selectedCustomer->deleteFromDb($pdo)) {
+                $transactionState = [
+                    'state' => 'success',
+                    'message' => 'Customer successfully deleted with ID: ' . $selectedCustomer->getCus_id()
+                ];
+
+                // TODO: Handle unset of customer correctly
+                unset($selectedCustomer);
+                header('Location: index.php');
+            } else {
+                $transactionState = [
+                    'state' => 'error',
+                    'message' => 'Customer could not be deleted. Please try again later'
+                ];
+            }
+            break;
+    }
+}
+
+// Handle Form
+if (isset($_POST['customerFormSent'])) {
     logger('Add Customer form sent', $_POST, LOGGER_INFO);
 
     foreach ($_POST['customer'] as $key => $value) {
@@ -35,14 +63,42 @@ if (isset($_POST['addCustomerSent'])) {
     if (count($errorMap) === 0) {
         logger('Add Customer form has no errors', __LINE__, LOGGER_INFO);
 
+        // Date formfield returns empty string as value if form is sent
+        if ($customer['birthdate'] == '') {
+            $date = NULL;
+        } else {
+            $date = new DateTime($customer['birthdate']);
+        }
+
         $currentCustomer = new Customer(
             $customer['firstname'],
             $customer['lastname'],
             $customer['email'],
-            new DateTime(),
+            $date,
             $customer['city']
         );
 
+        if(!$currentCustomer->emailExistsInDb($pdo)) {
+            if ($currentCustomer->saveToDb($pdo)) {
+                $transactionState = [
+                    'state' => 'success',
+                    'message' => 'Customer successfully saved with ID: ' . $currentCustomer->getCus_id()
+                ];
+
+                unset($currentCustomer);
+                $customer = [];
+            } else {
+                $transactionState = [
+                    'state' => 'error',
+                    'message' => 'Customer could not be saved. Please try again later'
+                ];
+            }
+        } else {
+            $transactionState = [
+                'state' => 'error',
+                'message' => 'Customer email already exists. Please check your data'
+            ];
+        }
     }
 }
 ?>
@@ -65,7 +121,15 @@ if (isset($_POST['addCustomerSent'])) {
         <?php require_once('./partials/customerTable.inc.php'); ?>
     <?php endif ?>
 
-    <?php require_once('./partials/addCustomerForm.inc.php'); ?>
+    <hr style="margin: 2em;">
+
+    <?php if (isset($transactionState)) : ?>
+        <div class="<?= $transactionState['state'] ?>">
+            <?= $transactionState['message'] ?>
+        </div>
+    <?php endif ?>
+
+    <?php require_once('./partials/customerForm.inc.php'); ?>
 
 </body>
 

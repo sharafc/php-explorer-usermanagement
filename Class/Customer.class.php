@@ -36,7 +36,6 @@ class Customer implements CustomerInterface
     public static function fetchAllCustomersFromDb(PDO $pdo): ?array
     {
         $query = 'SELECT * FROM customer';
-
         $statement = $pdo->prepare($query);
         $statement->execute();
         if ($statement->errorInfo()[2]) {
@@ -44,11 +43,17 @@ class Customer implements CustomerInterface
         }
 
         while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+            if(isset($result['cus_birthdate'])) {
+                $date = new DateTime($result['cus_birthdate']);
+            } else {
+                $date = NULL;
+            }
+
             $customers[] = new Customer(
                 $result['cus_firstname'],
                 $result['cus_lastname'],
                 $result['cus_email'],
-                new DateTime(),
+                $date,
                 $result['cus_city'],
                 $result['cus_id']
             );
@@ -57,17 +62,16 @@ class Customer implements CustomerInterface
         return $customers ?? NULL;
     }
 
-
     /**
      * Save a customer to the database
      *
-     * @param PDO $pdo
+     * @param $pdo The PDO object
      * @return boolean true|false Returns true when the customer was saved successfully otherwise false
      */
-    public function saveToDb(PDO $pdo)
+    public function saveToDb(PDO $pdo): bool
     {
         $query = 'INSERT INTO customer
-                  (cus_firstname, cus_lastname, $cus_email, $cus_birthdate, $cus_city)
+                  (cus_firstname, cus_lastname, cus_email, cus_birthdate, cus_city)
                   VALUES
                   (:ph_firstname, :ph_lastname, :ph_email, :ph_birthdate, :ph_city)';
 
@@ -75,14 +79,14 @@ class Customer implements CustomerInterface
             'ph_firstname' => $this->getCus_firstname(),
             'ph_lastname' => $this->getCus_lastname(),
             'ph_email' => $this->getCus_email(),
-            'ph_birthdate' => $this->getCus_birthdate(),
+            'ph_birthdate' => ($this->getCus_birthdate() ? $this->getCus_birthdate()->format('Y-m-d') : NULL),
             'ph_city' => $this->getCus_city()
         ];
 
         $statement = $pdo->prepare($query);
         $statement->execute($map);
         if($statement->errorInfo()[2]) {
-            logger('Something went wrong while saving customer');
+            logger('Something went wrong while saving customer', $statement->errorInfo()[2]);
         }
 
         $rowCount = $statement->rowCount();
@@ -103,12 +107,93 @@ class Customer implements CustomerInterface
     {
     }
 
-    public function updateToDb(PDO $pdo)
+    /**
+     * Update an existing customer in the database
+     *
+     * @param $pdo The PDO object
+     * @return boolean true|false Returns true when the customer was updated successfully otherwise false
+     */
+    public function updateToDb(PDO $pdo): bool
     {
+        $query = 'UPDATE customer
+                  SET
+                  cus_firstname = :ph_firstname,
+                  cus_lastname = :ph_lastname,
+                  cus_email = :ph_email,
+                  cus_birthdate = :ph_birthdate,
+                  cus_city = :ph_city,
+                  WHERE cus_id = :ph_id';
+        $map = [
+            'ph_id' => $this->getCus_id(),
+            'ph_firstname' => $this->getCus_firstname(),
+            'ph_lastname' => $this->getCus_lastname(),
+            'ph_email' => $this->getCus_email(),
+            'ph_birthdate' => ($this->getCus_birthdate() ? $this->getCus_birthdate()->format('Y-m-d') : NULL),
+            'ph_city' => $this->getCus_city()
+        ];
+        $statement = $pdo->prepare($query);
+        $statement->execute($map);
+        if ($statement->errorInfo()[2]) {
+            logger('Something went wrong while updating customer with ID: ' . $this->getCus_id(), $statement->errorInfo()[2]);
+        }
+
+        if ($statement->rowCount()) {
+            return true;
+        } else {
+            logger('Updating of customer failed');
+        }
+
+        return false;
     }
 
-    public function deleteFromDb(PDO $pdo)
+    /**
+     * Delete selected Customer from database
+     *
+     * @param PDO $pdo The PDO object
+     * @return boolean true|false Returns true when the customer was deleted successfully otherwise false
+     */
+    public function deleteFromDb(PDO $pdo): bool
     {
+        $query = 'DELETE FROM customer WHERE cus_id = ' . $this->getCus_id();
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+        if ($statement->errorInfo()[2]) {
+            logger('Something went wrong while deleting Customer with ID: ' . $this->getCus_id(), $statement->errorInfo()[2]);
+        }
+
+        if ($statement->rowCount()) {
+            return true;
+        } else {
+            logger('Deletion of customer failed');
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if email of customer already exists in the database
+     *
+     * @param PDO $pdo The PDO object
+     * @return boolean true|false Returns true when the email already exists otherwise false
+     */
+    public function emailExistsInDb(PDO $pdo): bool
+    {
+        $query = 'SELECT COUNT(cus_email) FROM customer WHERE cus_email = :ph_mail';
+        $map = [
+            'ph_mail' => $this->getCus_email()
+        ];
+        $statement = $pdo->prepare($query);
+        $statement->execute($map);
+        if ($statement->errorInfo()[2]) {
+            logger('Something went wrong while fetching Customer emails', $statement->errorInfo()[2]);
+        }
+
+        $count = $statement->fetchColumn();
+        if ($count > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

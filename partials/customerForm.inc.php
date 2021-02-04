@@ -1,5 +1,9 @@
-<form action="" method="POST">
-    <input type="hidden" name="addCustomerSent">
+<?php
+
+?>
+
+<form action="index.php" method="POST">
+    <input type="hidden" name="customerFormSent">
     <fieldset>
         <legend>Add new Customer</legend>
         <label for="firstname">First name *</label>
@@ -24,13 +28,13 @@
         <?php if (isset($error['birthdate'])) : ?>
             <div class="error"><?= $error['birthdate'] ?></div>
         <?php endif ?>
-        <input type="text" name="customer[birthdate]" id="birthdate" value="<?= $customer['birthdate'] ?? '' ?>">
+        <input type="date" name="customer[birthdate]" id="birthdate" value="<?= $customer['birthdate'] ?? '' ?>">
 
         <label for="city">City</label>
         <?php if (isset($error['city'])) : ?>
             <div class="error"><?= $error['city'] ?></div>
         <?php endif ?>
-        <input type="text" name="customer[city]" id="city" value="<?= $customer['emacityil'] ?? '' ?>">
+        <input type="text" name="customer[city]" id="city" value="<?= $customer['city'] ?? '' ?>">
     </fieldset>
     <button type="submit">Add customer</button>
 </form>

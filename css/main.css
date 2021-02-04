@@ -222,3 +222,20 @@ popupBox a.button {
 popupBox a.button:hover {
     color: black;
 }
+
+/* Own Styles */
+div.success,
+div.error {
+    border: 1px dashed green;
+    border-radius: 5px;
+    color: green;
+    font-weight: 600;
+    margin: 0.5em;
+    padding: 0.5em;
+    text-align: center;
+}
+
+div.error {
+    border: 1px dashed red;
+    color: red;
+}
