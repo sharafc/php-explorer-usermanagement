@@ -1,16 +1,3 @@
-<?php
-if ($editCustomer) {
-    $customer = [
-        'firstname' => $selectedCustomer->getCus_firstname(),
-        'lastname' => $selectedCustomer->getCus_lastname(),
-        'email' => $selectedCustomer->getCus_email(),
-        'birthdate' => ($selectedCustomer->getCus_birthdate() ? $selectedCustomer->getCus_birthdate()->format('Y-m-d') : NULL),
-        'city' => $selectedCustomer->getCus_city(),
-        'id' => $selectedCustomer->getCus_id()
-    ];
-}
-?>
-
 <form action="" method="POST">
     <input type="hidden" name="customerFormSent">
     <input type="hidden" name="customer[id]" value="<?= $customer['id'] ?? NULL ?>">

@@ -3,19 +3,19 @@
 class Customer implements CustomerInterface
 {
     private ?int $cus_id;
-    private string $cus_firstname;
-    private string $cus_lastname;
-    private string $cus_email;
+    private ?string $cus_firstname;
+    private ?string $cus_lastname;
+    private ?string $cus_email;
     private ?DateTime $cus_birthdate;
     private ?string $cus_city;
 
     public function __construct(
-        string $firstname,
-        string $lastname,
-        string $email,
+        ?int $id,
+        ?string $firstname = NULL,
+        ?string $lastname = NULL,
+        ?string $email = NULL,
         ?DateTime $birthdate = NULL,
-        ?string $city = NULL,
-        ?int $id = NULL
+        ?string $city = NULL
     ) {
         $this->setCus_firstname($firstname);
         $this->setCus_lastname($lastname);
@@ -50,12 +50,12 @@ class Customer implements CustomerInterface
             }
 
             $customers[] = new Customer(
+                $result['cus_id'],
                 $result['cus_firstname'],
                 $result['cus_lastname'],
                 $result['cus_email'],
                 $date,
-                $result['cus_city'],
-                $result['cus_id']
+                $result['cus_city']
             );
         }
 
@@ -103,8 +103,36 @@ class Customer implements CustomerInterface
         return false;
     }
 
-    public function fetchFromDb(PDO $pdo)
+    /**
+     * Fetch existing customer values from the database
+     *
+     * @param $pdo The PDO object
+     * @return boolean true|false Returns true when the customer data was fetched otherwise false
+     */
+    public function fetchFromDb(PDO $pdo): bool
     {
+        $query = 'SELECT * FROM customer WHERE cus_id = :ph_id';
+        $map = [
+            'ph_id' => $this->getCus_id()
+        ];
+        $statement = $pdo->prepare($query);
+        $statement->execute($map);
+        if ($statement->errorInfo()[2]) {
+            logger('Something went wrong while saving customer', $statement->errorInfo()[2]);
+        }
+
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $this->setCus_firstname($row['cus_firstname']);
+            $this->setCus_lastname($row['cus_lastname']);
+            $this->setCus_email($row['cus_email']);
+            $this->setCus_birthdate($row['cus_birthdate']);
+            $this->setCus_city($row['cus_city']);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -230,7 +258,7 @@ class Customer implements CustomerInterface
     /**
      * Get the value of cus_firstname
      */
-    public function getCus_firstname(): string
+    public function getCus_firstname(): ?string
     {
         return $this->cus_firstname;
     }
@@ -240,7 +268,7 @@ class Customer implements CustomerInterface
      *
      * @return  self
      */
-    public function setCus_firstname(string $cus_firstname)
+    public function setCus_firstname(?string $cus_firstname)
     {
         $this->cus_firstname = $cus_firstname;
 
@@ -250,7 +278,7 @@ class Customer implements CustomerInterface
     /**
      * Get the value of cus_lastname
      */
-    public function getCus_lastname(): string
+    public function getCus_lastname(): ?string
     {
         return $this->cus_lastname;
     }
@@ -260,7 +288,7 @@ class Customer implements CustomerInterface
      *
      * @return  self
      */
-    public function setCus_lastname(string $cus_lastname)
+    public function setCus_lastname(?string $cus_lastname)
     {
         $this->cus_lastname = $cus_lastname;
 
@@ -270,7 +298,7 @@ class Customer implements CustomerInterface
     /**
      * Get the value of cus_email
      */
-    public function getCus_email(): string
+    public function getCus_email(): ?string
     {
         return $this->cus_email;
     }
@@ -280,7 +308,7 @@ class Customer implements CustomerInterface
      *
      * @return  self
      */
-    public function setCus_email(string $cus_email)
+    public function setCus_email(?string $cus_email)
     {
         $this->cus_email = $cus_email;
 

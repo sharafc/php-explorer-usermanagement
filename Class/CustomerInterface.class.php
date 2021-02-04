@@ -3,18 +3,18 @@
 interface CustomerInterface
 {
     public function __construct(
-        string $firstname,
-        string $lastname,
-        string $email,
+        ?int $id,
+        ?string $firstname,
+        ?string $lastname,
+        ?string $email,
         ?DateTime $birthdate = NULL,
-        ?string $city = NULL,
-        ?int $id = NULL
+        ?string $city = NULL
     );
 
     public static function fetchAllCustomersFromDb(PDO $pdo): ?array;
 
     public function saveToDb(PDO $pdo): bool;
-    public function fetchFromDb(PDO $pdo);
+    public function fetchFromDb(PDO $pdo): bool;
     public function updateToDb(PDO $pdo): bool;
     public function deleteFromDb(PDO $pdo): bool;
     public function emailExistsInDb(PDO $pdo): bool;
@@ -24,14 +24,14 @@ interface CustomerInterface
     public function getCus_id(): ?int;
     public function setCus_id(?int $value);
 
-    public function getCus_firstname(): string;
-    public function setCus_firstname(string $value);
+    public function getCus_firstname(): ?string;
+    public function setCus_firstname(?string $value);
 
-    public function getCus_lastname(): string;
-    public function setCus_lastname(string $value);
+    public function getCus_lastname(): ?string;
+    public function setCus_lastname(?string $value);
 
-    public function getCus_email(): string;
-    public function setCus_email(string $value);
+    public function getCus_email(): ?string;
+    public function setCus_email(?string $value);
 
     public function getCus_birthdate(): ?DateTime;
     public function setCus_birthdate(?DateTime $value);
