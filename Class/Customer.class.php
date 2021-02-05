@@ -3,8 +3,9 @@
  *  Represents a Customer
  *
  * @author Christian Sharaf <http://twitter.com/sharafc>
- * @see CustomerInterface
- */
+ * @copyright 2021 Christian Sharaf
+ * @version 1.0.0
+  */
 class Customer implements CustomerInterface
 {
     private ?int $cus_id;
@@ -14,6 +15,20 @@ class Customer implements CustomerInterface
     private ?DateTime $cus_birthdate;
     private ?string $cus_city;
 
+    /**
+     * Constructs a Customer object
+     * At least requires an ID to fetch the data from the database
+     * Is only fully qualified if firstname, lastname and email are set
+     *
+     * @see CustomerInterface
+     *
+     * @param integer|null $id The customers Id in the database
+     * @param string|null $firstname The customers firstname
+     * @param string|null $lastname The customers lastname
+     * @param string|null $email The customers email adress
+     * @param DateTime|null $birthdate The customers birthdate
+     * @param string|null $city The customers living place
+     */
     public function __construct(
         ?int $id,
         ?string $firstname = NULL,
